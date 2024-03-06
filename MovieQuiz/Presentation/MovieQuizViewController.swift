@@ -27,6 +27,13 @@ final class MovieQuizViewController: UIViewController {
       let questionNumber: String // строка с порядковым номером этого вопроса (ex. "1/10")
     }
     
+    // для состояния "Результат квиза"
+    struct QuizResultsViewModel {
+      let title: String // строка с заголовком алерта
+      let text: String // строка с текстом о количестве набранных очков
+      let buttonText: String // текст для кнопки алерта
+    }
+    
     // MARK: - Private Properties
     private var currentQuestionIndex = 0 // переменная с индексом текущего вопроса, начальное значение 0 (так как индекс в массиве начинается с 0)
     private var correctAnswers = 0 // переменная со счётчиком правильных ответов, начальное значение закономерно 0
@@ -108,9 +115,13 @@ final class MovieQuizViewController: UIViewController {
     
     // приватный метод, который меняет цвет рамки
     private func showAnswerResult(isCorrect: Bool) {
+        if isCorrect {
+            correctAnswers += 1 //Увеличиваем счётчик количества правильных ответов
+        }
+        
         imageView.layer.masksToBounds = true // даём разрешение на рисование рамки
         imageView.layer.borderWidth = 8 // толщина рамки
-        if isCorrect == true {
+        if isCorrect {
             imageView.layer.borderColor = UIColor.ypGreen.cgColor // делаем рамку green
         } else {
             imageView.layer.borderColor = UIColor.ypRed.cgColor // делаем рамку red
@@ -121,11 +132,40 @@ final class MovieQuizViewController: UIViewController {
         }
     }
     
+    // приватный метод для показа результатов раунда квиза
+    // принимает вью модель QuizResultsViewModel и ничего не возвращает
+    private func show(quiz result: QuizResultsViewModel) {
+        let alert = UIAlertController(
+            title: result.title,
+            message: result.text,
+            preferredStyle: .alert)
+        
+        // константа с кнопкой для системного алерта
+        let action = UIAlertAction(title: result.buttonText, style: .default) { _ in
+          // код, который сбрасывает игру и показывает первый вопрос
+            self.currentQuestionIndex = 0 // сбрасываем индекс текущего вопроса до 0
+            self.correctAnswers = 0 // сбрасываем переменную с количеством правильных ответов
+            let firstQuestion = self.questions[self.currentQuestionIndex] // находим первый вопрос
+            let viewModel = self.convert(model: firstQuestion) // конвертируем вопрос
+            self.show(quiz: viewModel) // отображаем данные из вью модели на экране
+        }
+        
+        alert.addAction(action)
+
+        self.present(alert, animated: true, completion: nil)
+    }
+    
     // приватный метод, который содержит логику перехода в один из сценариев
     // метод ничего не принимает и ничего не возвращает
     private func showNextQuestionOrResults() {
         if currentQuestionIndex == questions.count - 1 { // Сравниваем номер текущего вопроса с размером массива моковых вопросов -1
             // идём в состояние "Результат квиза"
+            let results = QuizResultsViewModel(
+                title: "Этот раунд окончен!",
+                text: "Ваш результат: \(correctAnswers) /\(currentQuestionIndex + 1)",
+                buttonText: "Сыграть ещё раз")
+            show(quiz: results)
+            
         } else { // Показываем новый вопрос
             currentQuestionIndex += 1
             let nextQuestion = questions[currentQuestionIndex] // переходим на следующий вопрос в массиве
