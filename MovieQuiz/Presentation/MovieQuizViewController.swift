@@ -20,21 +20,21 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet private var noButton: UIButton!
     @IBOutlet private var yesButton: UIButton!
     // MARK: - Structures
-    struct QuizQuestion {
+    private struct QuizQuestion {
         let image: String  // строка с названием фильма
         let text: String // строка с вопросом о рейтинге фильма
         let correctAnswer: Bool  // булевое значение (true, false), правильный ответ на вопрос
     }
     
     // вью модель для состояния "Вопрос показан"
-    struct QuizStepViewModel {
+    private struct QuizStepViewModel {
       let image: UIImage // картинка с афишей фильма с типом UIImage
       let question: String // вопрос о рейтинге квиза
       let questionNumber: String // строка с порядковым номером этого вопроса (ex. "1/10")
     }
     
     // для состояния "Результат квиза"
-    struct QuizResultsViewModel {
+    private struct QuizResultsViewModel {
       let title: String // строка с заголовком алерта
       let text: String // строка с текстом о количестве набранных очков
       let buttonText: String // текст для кнопки алерта
@@ -42,7 +42,7 @@ final class MovieQuizViewController: UIViewController {
     
     // MARK: - Private Properties
     private var currentQuestionIndex = 0 // переменная с индексом текущего вопроса, начальное значение 0 (так как индекс в массиве начинается с 0)
-    private var correctAnswers = 0 // переменная со счётчиком правильных ответов, начальное значение закономерно 0
+    private var correctAnswers = 0 // переменная со счётчиком правильных ответов
     
     // массив вопросов
     private let questions: [QuizQuestion] = [
@@ -99,6 +99,12 @@ final class MovieQuizViewController: UIViewController {
         let currentQuestion = questions[currentQuestionIndex]
         let givenAnswer = true
         showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+    }
+    
+    // MARK: - Public methods
+    // Смена цвета статус-бара на белый
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
     }
     
     // MARK: - Private Methods
