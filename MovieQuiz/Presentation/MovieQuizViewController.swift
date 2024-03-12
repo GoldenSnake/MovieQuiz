@@ -4,6 +4,10 @@ final class MovieQuizViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        imageView.layer.masksToBounds = true // даём разрешение на рисование рамки
+        imageView.layer.borderWidth = 8 // толщина рамки
+        borderColorClear() // делаем рамку прозрачной
+        
         // берём текущий вопрос из массива вопросов по индексу текущего вопроса
         let currentQuestion = questions[currentQuestionIndex]
         show(quiz: convert(model: currentQuestion))
@@ -13,6 +17,8 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet private var textLabel: UILabel!
     @IBOutlet private var counterLabel: UILabel!
     
+    @IBOutlet private var noButton: UIButton!
+    @IBOutlet private var yesButton: UIButton!
     // MARK: - Structures
     struct QuizQuestion {
         let image: String  // строка с названием фильма
@@ -117,16 +123,12 @@ final class MovieQuizViewController: UIViewController {
     private func showAnswerResult(isCorrect: Bool) {
         if isCorrect {
             correctAnswers += 1 //Увеличиваем счётчик количества правильных ответов
-        }
-        
-        imageView.layer.masksToBounds = true // даём разрешение на рисование рамки
-        imageView.layer.borderWidth = 8 // толщина рамки
-        if isCorrect {
             imageView.layer.borderColor = UIColor.ypGreen.cgColor // делаем рамку green
         } else {
             imageView.layer.borderColor = UIColor.ypRed.cgColor // делаем рамку red
         }
-        
+        noButton.isEnabled = false // отключаем кнопки
+        yesButton.isEnabled = false
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { // запускаем задачу через 1 секунду c помощью диспетчера задач
            self.showNextQuestionOrResults() // код, который мы хотим вызвать через 1 секунду
         }
@@ -162,15 +164,26 @@ final class MovieQuizViewController: UIViewController {
             // идём в состояние "Результат квиза"
             let results = QuizResultsViewModel(
                 title: "Этот раунд окончен!",
-                text: "Ваш результат: \(correctAnswers) /\(currentQuestionIndex + 1)",
+                text: "Ваш результат: \(correctAnswers)/\(currentQuestionIndex + 1)",
                 buttonText: "Сыграть ещё раз")
             show(quiz: results)
+            borderColorClear() // делаем рамку прозрачной
+            noButton.isEnabled = true // включаем кнопки
+            yesButton.isEnabled = true
             
         } else { // Показываем новый вопрос
             currentQuestionIndex += 1
+            borderColorClear() // делаем рамку прозрачной
+            noButton.isEnabled = true // включаем кнопки
+            yesButton.isEnabled = true
             let nextQuestion = questions[currentQuestionIndex] // переходим на следующий вопрос в массиве
             let viewModel = convert(model: nextQuestion) // конвертируем вопрос
             show(quiz: viewModel) // показываем вопрос
         }
+    }
+    
+    // функция которая делает рамку прозрачной
+    private func borderColorClear() {
+        imageView.layer.borderColor = UIColor.clear.cgColor
     }
 }
