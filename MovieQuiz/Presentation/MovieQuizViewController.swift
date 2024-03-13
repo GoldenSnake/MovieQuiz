@@ -133,8 +133,7 @@ final class MovieQuizViewController: UIViewController {
         } else {
             imageView.layer.borderColor = UIColor.ypRed.cgColor
         }
-        noButton.isEnabled = false
-        yesButton.isEnabled = false
+        changeStateButtons(isEnabled: false)
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
            self.showNextQuestionOrResults()
         }
@@ -167,14 +166,11 @@ final class MovieQuizViewController: UIViewController {
                 buttonText: "Сыграть ещё раз")
             show(quiz: results)
             borderColorClear()
-            noButton.isEnabled = true
-            yesButton.isEnabled = true
-            
+            changeStateButtons(isEnabled: true)
         } else {
             currentQuestionIndex += 1
             borderColorClear()
-            noButton.isEnabled = true
-            yesButton.isEnabled = true
+            changeStateButtons(isEnabled: true)
             let nextQuestion = questions[currentQuestionIndex]
             let viewModel = convert(model: nextQuestion)
             show(quiz: viewModel)
@@ -184,5 +180,10 @@ final class MovieQuizViewController: UIViewController {
     // функция которая делает рамку прозрачной
     private func borderColorClear() {
         imageView.layer.borderColor = UIColor.clear.cgColor
+    }
+    
+    private func changeStateButtons(isEnabled: Bool) {
+        yesButton.isEnabled = isEnabled
+        noButton.isEnabled = isEnabled
     }
 }
