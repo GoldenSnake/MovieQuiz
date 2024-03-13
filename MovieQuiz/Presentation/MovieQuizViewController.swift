@@ -1,28 +1,18 @@
 import UIKit
 
 final class MovieQuizViewController: UIViewController {
-    
-    // MARK: - Lifecycle
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        imageView.layer.masksToBounds = true
-        imageView.layer.borderWidth = 8
-        borderColorClear()
-        
-        let currentQuestion = questions[currentQuestionIndex]
-        show(quiz: convert(model: currentQuestion))
-    }
+
     // MARK: - IBOutlet
     
     @IBOutlet private var imageView: UIImageView!
+    
     @IBOutlet private var textLabel: UILabel!
     @IBOutlet private var counterLabel: UILabel!
     
     @IBOutlet private var noButton: UIButton!
     @IBOutlet private var yesButton: UIButton!
     
-    // MARK: - Structures
+    // MARK: - Private Structures
     
     private struct QuizQuestion {
         let image: String
@@ -90,6 +80,23 @@ final class MovieQuizViewController: UIViewController {
             correctAnswer: false)
     ]
     
+    // MARK: - Lifecycle
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        imageView.layer.masksToBounds = true
+        imageView.layer.borderWidth = 8
+        borderColorClear()
+        
+        let currentQuestion = questions[currentQuestionIndex]
+        show(quiz: convert(model: currentQuestion))
+    }
+    
+    // Смена цвета статус-бара на белый
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
+    
     // MARK: - IBAction
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
@@ -102,12 +109,6 @@ final class MovieQuizViewController: UIViewController {
         let currentQuestion = questions[currentQuestionIndex]
         let givenAnswer = true
         showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
-    }
-    
-    // MARK: - Public methods
-    // Смена цвета статус-бара на белый
-    override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
     }
     
     // MARK: - Private Methods
