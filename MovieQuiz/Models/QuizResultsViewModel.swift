@@ -6,7 +6,7 @@
 import Foundation
 import UIKit 
 
-private struct QuizResultsViewModel {
+ struct QuizResultsViewModel {
   let title: String
   let text: String
   let buttonText: String
