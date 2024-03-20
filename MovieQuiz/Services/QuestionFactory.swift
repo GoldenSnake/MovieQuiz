@@ -1,6 +1,6 @@
 import Foundation
 
-class QuestionFactory {
+class QuestionFactory: QuestionFactoryProtocol {
     // MARK: - Private Properties
     
     private let questions: [QuizQuestion] = [

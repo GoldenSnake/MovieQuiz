@@ -18,7 +18,7 @@ final class MovieQuizViewController: UIViewController {
     private var correctAnswers = 0
     
     private let questionsAmount: Int = 10 // общее количество вопросов для квиза.
-    private var questionFactory: QuestionFactory = QuestionFactory() // фабрика вопросов. Контроллер будет обращаться за вопросами к ней.
+    private var questionFactory: QuestionFactoryProtocol = QuestionFactory() // фабрика вопросов. Контроллер будет обращаться за вопросами к ней.
     private var currentQuestion: QuizQuestion? //вопрос, который видит пользователь.
     
     
