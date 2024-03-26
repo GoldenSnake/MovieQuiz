@@ -1,6 +1,14 @@
 import Foundation
 
 class QuestionFactory: QuestionFactoryProtocol {
+    // MARK: - Public Methods
+    
+    weak var delegate: QuestionFactoryDelegate?
+    
+    func setup(delegate: QuestionFactoryDelegate) {
+            self.delegate = delegate
+        }
+    
     // MARK: - Private Properties
     
     private let questions: [QuizQuestion] = [
@@ -48,12 +56,12 @@ class QuestionFactory: QuestionFactoryProtocol {
     
     // MARK: - Public Methods
 
-    func requestNextQuestion() -> QuizQuestion? { // 1
-        // 2
+    func requestNextQuestion() {
         guard let index = (0..<questions.count).randomElement() else {
-            return nil
+            delegate?.didReceiveNextQuestion(question: nil)
+            return
         }
-
-        return questions[safe: index] // 3
+        let question = questions[safe: index]
+        delegate?.didReceiveNextQuestion(question: question)
     }
 }

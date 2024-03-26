@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController {
+final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 
     // MARK: - IBOutlet
     
@@ -18,7 +18,7 @@ final class MovieQuizViewController: UIViewController {
     private var correctAnswers = 0
     
     private let questionsAmount: Int = 10 // общее количество вопросов для квиза.
-    private var questionFactory: QuestionFactoryProtocol = QuestionFactory() // фабрика вопросов. Контроллер будет обращаться за вопросами к ней.
+    private var questionFactory: QuestionFactoryProtocol = QuestionFactory()  // фабрика вопросов. Контроллер будет обращаться за вопросами к ней.
     private var currentQuestion: QuizQuestion? //вопрос, который видит пользователь.
     
     
@@ -30,16 +30,31 @@ final class MovieQuizViewController: UIViewController {
         imageView.layer.borderWidth = 8
         borderColorClear()
         
-        if let firstQuestion = questionFactory.requestNextQuestion() {
-            currentQuestion = firstQuestion
-            let viewModel = convert(model: firstQuestion)
-            show(quiz: viewModel)
-        }
+        
+        let questionFactory = QuestionFactory()
+                questionFactory.setup(delegate: self)
+                self.questionFactory = questionFactory
+        
+        questionFactory.requestNextQuestion()
     }
     
     // Смена цвета статус-бара на белый
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
+    }
+    
+    // MARK: - QuestionFactoryDelegate
+    
+    func didReceiveNextQuestion(question: QuizQuestion?) {
+        guard let question = question else {
+            return
+        }
+
+        currentQuestion = question
+        let viewModel = convert(model: question)
+        DispatchQueue.main.async { [weak self] in
+            self?.show(quiz: viewModel)
+        }
     }
     
     // MARK: - IBAction
@@ -103,12 +118,7 @@ final class MovieQuizViewController: UIViewController {
             self.currentQuestionIndex = 0
             self.correctAnswers = 0
             
-            if let firstQuestion = self.questionFactory.requestNextQuestion() {
-                self.currentQuestion = firstQuestion
-                let viewModel = self.convert(model: firstQuestion)
-                
-                self.show(quiz: viewModel)
-            }
+            questionFactory.requestNextQuestion()
         }
         
         alert.addAction(action)
@@ -129,12 +139,8 @@ final class MovieQuizViewController: UIViewController {
             currentQuestionIndex += 1
             borderColorClear()
             changeStateButtons(isEnabled: true)
-            if let nextQuestion = questionFactory.requestNextQuestion() {
-                currentQuestion = nextQuestion
-                let viewModel = convert(model: nextQuestion)
-                
-                show(quiz: viewModel)
-            }
+            
+            self.questionFactory.requestNextQuestion()
         }
     }
 
