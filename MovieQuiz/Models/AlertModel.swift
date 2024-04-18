@@ -3,7 +3,6 @@
 //  MovieQuiz
 //
 
-import Foundation
 import UIKit
 
  struct AlertModel {
@@ -11,4 +10,5 @@ import UIKit
     let message: String
     let buttonText: String
     var completion: () -> Void
+
 }

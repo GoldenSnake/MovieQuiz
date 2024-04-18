@@ -3,27 +3,30 @@
 //  MovieQuiz
 //
 
-import Foundation
+
 import UIKit
 
-class AlertPresenter {
+final class AlertPresenter: AlertPresenterProtocol {
     
-    weak var controller: UIViewController?
-        
-        init(controller: UIViewController) {
-            self.controller = controller
-        }
+    weak var delegate: UIViewController?
+    
+    init(delegate: UIViewController? = nil) {
+        self.delegate = delegate
+    }
     
     func showAlert(model: AlertModel) {
-        guard let controller = controller else { return }
+        guard let delegate = delegate else {return}
         
-        let alert = UIAlertController(title: model.title, 
-                                      message: model.message,
-                                      preferredStyle: .alert)
-        let action = UIAlertAction(title: model.buttonText, style: .default) { _ in
+        let alert = UIAlertController( title: model.title,
+                                       message: model.message,
+                                       preferredStyle: .alert)
+        
+        let action = UIAlertAction(title: model.buttonText, style: .default) {  _ in
             model.completion()
         }
+        
         alert.addAction(action)
-        controller.present(alert, animated: true, completion: nil)
+        delegate.present(alert, animated: true)
+
     }
 }
