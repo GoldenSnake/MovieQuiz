@@ -108,6 +108,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         }
     }
     
+
     private func showNextQuestionOrResults() {
         if currentQuestionIndex == questionsAmount - 1 {
             

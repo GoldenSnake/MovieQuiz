@@ -3,6 +3,7 @@
 //  MovieQuiz
 //
 
+
 import UIKit
 
 final class AlertPresenter: AlertPresenterProtocol {
@@ -26,5 +27,6 @@ final class AlertPresenter: AlertPresenterProtocol {
         
         alert.addAction(action)
         delegate.present(alert, animated: true)
+
     }
 }

@@ -8,6 +8,6 @@ import UIKit
 
  struct QuizResultsViewModel {
   let title: String
-  let text: String
+  let message: String
   let buttonText: String
 }
