@@ -21,6 +21,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
     
+    private var alertPresenter: AlertPresenterProtocol?
+    
     
     // MARK: - Lifecycle
     
@@ -106,33 +108,27 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         }
     }
     
-    private func show(quiz result: QuizResultsViewModel) {
-        let alert = UIAlertController(
-            title: result.title,
-            message: result.text,
-            preferredStyle: .alert)
-        
-        let action = UIAlertAction(title: result.buttonText, style: .default) { [weak self] _ in // слабая ссылка на self
-            guard let self = self else { return } // разворачиваем слабую ссылку
-            
-            self.currentQuestionIndex = 0
-            self.correctAnswers = 0
-            
-            questionFactory?.requestNextQuestion()
-        }
-        
-        alert.addAction(action)
-
-        self.present(alert, animated: true, completion: nil)
-    }
-    
     private func showNextQuestionOrResults() {
         if currentQuestionIndex == questionsAmount - 1 {
-            let results = QuizResultsViewModel(
+            
+            let completion = { [weak self] in
+            guard let self = self else { return }
+                                
+            self.currentQuestionIndex = 0
+            self.correctAnswers = 0
+                                
+            questionFactory?.requestNextQuestion()
+            }
+            
+            let alertResult = AlertModel(
                 title: "Этот раунд окончен!",
-                text: "Ваш результат: \(correctAnswers)/\(currentQuestionIndex + 1)",
-                buttonText: "Сыграть ещё раз")
-            show(quiz: results)
+                message: "Ваш результат: \(correctAnswers)/\(questionsAmount)",
+                buttonText: "Сыграть ещё раз",
+                completion: completion)
+            
+            alertPresenter = AlertPresenter(delegate: self)
+            alertPresenter?.showAlert(model: alertResult)
+            
             borderColorClear()
             changeStateButtons(isEnabled: true)
         } else {
