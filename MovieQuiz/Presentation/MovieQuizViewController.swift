@@ -17,24 +17,24 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
     
-    private let questionsAmount: Int = 10 // общее количество вопросов для квиза.
-    private var questionFactory: QuestionFactoryProtocol = QuestionFactory()  // фабрика вопросов. Контроллер будет обращаться за вопросами к ней.
-    private var currentQuestion: QuizQuestion? //вопрос, который видит пользователь.
+    private let questionsAmount: Int = 10
+    private var questionFactory: QuestionFactoryProtocol?
+    private var currentQuestion: QuizQuestion?
     
     
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
         borderColorClear()
         
         
         let questionFactory = QuestionFactory()
-                questionFactory.setup(delegate: self)
-                self.questionFactory = questionFactory
-        
+        questionFactory.delegate = self
+        self.questionFactory = questionFactory
         questionFactory.requestNextQuestion()
     }
     
@@ -118,7 +118,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             self.currentQuestionIndex = 0
             self.correctAnswers = 0
             
-            questionFactory.requestNextQuestion()
+            questionFactory?.requestNextQuestion()
         }
         
         alert.addAction(action)
@@ -140,7 +140,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             borderColorClear()
             changeStateButtons(isEnabled: true)
             
-            self.questionFactory.requestNextQuestion()
+            self.questionFactory?.requestNextQuestion()
         }
     }
 

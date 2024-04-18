@@ -5,10 +5,6 @@ class QuestionFactory: QuestionFactoryProtocol {
     
     weak var delegate: QuestionFactoryDelegate?
     
-    func setup(delegate: QuestionFactoryDelegate) {
-            self.delegate = delegate
-        }
-    
     // MARK: - Private Properties
     
     private let questions: [QuizQuestion] = [
@@ -64,4 +60,7 @@ class QuestionFactory: QuestionFactoryProtocol {
         let question = questions[safe: index]
         delegate?.didReceiveNextQuestion(question: question)
     }
+
 }
+
+
