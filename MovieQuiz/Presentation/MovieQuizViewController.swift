@@ -35,6 +35,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
         borderColorClear()
+        imageView.isOpaque = false
         
         let questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         self.questionFactory = questionFactory
@@ -54,13 +55,23 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         guard let question = question else {
             return
         }
-
         currentQuestion = question
         let viewModel = convert(model: question)
         DispatchQueue.main.async { [weak self] in
+            self?.hideLoadingIndicator()
             self?.show(quiz: viewModel)
         }
     }
+    
+    func didFailToReceiveNextQuestion(with error: Error) {
+            hideLoadingIndicator()
+            showNetworkError { [weak self] in
+                guard let self = self else { return }
+                
+                self.showLoadingIndicator()
+                self.questionFactory?.requestNextQuestion()
+            }
+        }
     
     func didLoadDataFromServer() {
         hideLoadingIndicator()
@@ -68,9 +79,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
 
     func didFailToLoadData(with error: Error) {
-        hideLoadingIndicator()
-        showNetworkError(message: error.localizedDescription) // возьмём в качестве сообщения описание ошибки
-    }
+            hideLoadingIndicator()
+            showNetworkError { [weak self] in
+                guard let self = self else { return }
+                
+                self.showLoadingIndicator()
+                self.questionFactory?.loadData()
+            }
+        }
+    
     // MARK: - IBAction
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
@@ -114,8 +131,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         }
         changeStateButtons(isEnabled: false)
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in // слабая ссылка на self
-            guard let self = self else { return } // разворачиваем слабую ссылку
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let self = self else { return }
             self.showNextQuestionOrResults()
         }
     }
@@ -141,6 +158,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             currentQuestionIndex += 1
             borderColorClear()
             changeStateButtons(isEnabled: true)
+            showLoadingIndicator()
             
             self.questionFactory?.requestNextQuestion()
         }
@@ -152,7 +170,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                             
         self.currentQuestionIndex = 0
         self.correctAnswers = 0
-                            
+        self.showLoadingIndicator()
         questionFactory?.requestNextQuestion()
         }
         
@@ -180,15 +198,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         activityIndicator.isHidden = false // говорим, что индикатор загрузки не скрыт
         activityIndicator.startAnimating() // включаем анимацию
         textLabel.text = ""
-        changeStateButtons(isEnabled: false)
+        imageView.alpha = 0.6
     }
     
     private func hideLoadingIndicator() {
         activityIndicator.isHidden = true
-        changeStateButtons(isEnabled: true)
+        imageView.alpha = 1
     }
     
-    private func showNetworkError(message: String) {
+    private func showNetworkError(completion: @escaping () -> Void) {
         let completion = { [weak self] in
         guard let self = self else { return }
             
