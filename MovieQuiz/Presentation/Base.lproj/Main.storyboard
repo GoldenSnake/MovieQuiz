@@ -110,17 +110,23 @@
                                     </stackView>
                                 </subviews>
                             </stackView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="m5b-Il-JDT">
+                                <rect key="frame" x="186.66666666666666" y="416" width="20" height="20"/>
+                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" name="YP Black"/>
                         <constraints>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="AGc-EO-5Dr" secondAttribute="bottom" id="IXF-R0-B4x"/>
+                            <constraint firstItem="m5b-Il-JDT" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="JZ3-07-TsF"/>
                             <constraint firstItem="AGc-EO-5Dr" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="Kw3-6K-mfE"/>
+                            <constraint firstItem="m5b-Il-JDT" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="SPb-y7-Cbf"/>
                             <constraint firstItem="AGc-EO-5Dr" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="nEs-Ae-mgM"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="AGc-EO-5Dr" secondAttribute="trailing" constant="20" id="tCU-AF-V3e"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="m5b-Il-JDT" id="fZX-7L-LdF"/>
                         <outlet property="counterLabel" destination="YwA-j3-pDK" id="Psx-Pt-sou"/>
                         <outlet property="imageView" destination="erQ-J8-4ti" id="yGw-8s-qwg"/>
                         <outlet property="noButton" destination="7Eg-ok-vUZ" id="Auo-W1-UMB"/>
