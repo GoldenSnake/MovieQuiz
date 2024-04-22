@@ -91,7 +91,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     func didLoadEmptyData(errorMessage: String) {
         hideLoadingIndicator()
-        showEmpyDataError(errorMessage: errorMessage) { [weak self] in
+        showEmptyDataError(errorMessage: errorMessage) { [weak self] in
             guard let self = self else { return }
             
             self.showLoadingIndicator()
@@ -189,6 +189,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             title: result.title,
             message: result.message,
             buttonText: result.buttonText,
+            accessibilityIdentifier: "Results",
             completion: completion)
         
         alertPresenter = AlertPresenter(delegate: self)
@@ -226,14 +227,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         
         let alertError = AlertModel(title:"Что-то пошло не так(",
                                     message: "Невозможно загрузить данные",
-                                    buttonText:"Попробовать ещё раз",
+                                    buttonText:"Попробовать ещё раз", 
+                                    accessibilityIdentifier: "Network Error",
                                     completion: completion)
-        
         alertPresenter = AlertPresenter(delegate: self)
         alertPresenter?.showAlert(model: alertError)
     }
     
-    private func showEmpyDataError(errorMessage: String, completion: @escaping () -> Void) {
+    private func showEmptyDataError(errorMessage: String, completion: @escaping () -> Void) {
         let completion = { [weak self] in
             guard let self = self else { return }
             
@@ -243,7 +244,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         
         let alertError = AlertModel(title:"Что-то пошло не так(",
                                     message: errorMessage,
-                                    buttonText:"Попробовать ещё раз",
+                                    buttonText:"Попробовать ещё раз", 
+                                    accessibilityIdentifier: "Empty Data",
                                     completion: completion)
         
         alertPresenter = AlertPresenter(delegate: self)
