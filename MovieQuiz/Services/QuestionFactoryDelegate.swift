@@ -10,4 +10,5 @@ protocol QuestionFactoryDelegate: AnyObject {
     func didLoadDataFromServer() // сообщение об успешной загрузке
     func didFailToLoadData(with error: Error) // сообщение об ошибке загрузки
     func didFailToReceiveNextQuestion(with error: Error)
+    func didLoadEmptyData(errorMessage: String)
 }

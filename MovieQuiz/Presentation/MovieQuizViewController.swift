@@ -89,6 +89,16 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         }
     }
     
+    func didLoadEmptyData(errorMessage: String) {
+        hideLoadingIndicator()
+        showEmpyDataError(errorMessage: errorMessage) { [weak self] in
+            guard let self = self else { return }
+            
+            self.showLoadingIndicator()
+            self.questionFactory?.loadData()
+        }
+    }
+    
     // MARK: - IBAction
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
@@ -216,6 +226,23 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         
         let alertError = AlertModel(title:"Что-то пошло не так(",
                                     message: "Невозможно загрузить данные",
+                                    buttonText:"Попробовать ещё раз",
+                                    completion: completion)
+        
+        alertPresenter = AlertPresenter(delegate: self)
+        alertPresenter?.showAlert(model: alertError)
+    }
+    
+    private func showEmpyDataError(errorMessage: String, completion: @escaping () -> Void) {
+        let completion = { [weak self] in
+            guard let self = self else { return }
+            
+            self.showLoadingIndicator()
+            self.questionFactory?.loadData()
+        }
+        
+        let alertError = AlertModel(title:"Что-то пошло не так(",
+                                    message: errorMessage,
                                     buttonText:"Попробовать ещё раз",
                                     completion: completion)
         
