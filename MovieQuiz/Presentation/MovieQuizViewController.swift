@@ -1,30 +1,20 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+final class MovieQuizViewController: UIViewController {
     
     // MARK: - IBOutlet
     
     @IBOutlet private var imageView: UIImageView!
-    
     @IBOutlet private var textLabel: UILabel!
     @IBOutlet private var counterLabel: UILabel!
-    
     @IBOutlet private var noButton: UIButton!
     @IBOutlet private var yesButton: UIButton!
     @IBOutlet private var activityIndicator: UIActivityIndicatorView!
     
     // MARK: - Private Properties
     
-    private let presenter = MovieQuizPresenter()
-
-    private var correctAnswers = 0
-    
-    private var questionFactory: QuestionFactoryProtocol?
-    
+    private var presenter: MovieQuizPresenter!
     private var alertPresenter: AlertPresenterProtocol?
-    
-    private let statisticService: StatisticService = StatisticServiceImplementation()
-    
     
     // MARK: - Lifecycle
     
@@ -36,60 +26,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         borderColorClear()
         imageView.backgroundColor = .clear
         activityIndicator.hidesWhenStopped = true
-        
-        presenter.viewController = self
-        
-        let questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
-        self.questionFactory = questionFactory
-        
         showLoadingIndicator()
-        questionFactory.loadData()
+        
+        presenter = MovieQuizPresenter(viewController: self)
     }
     
     // Смена цвета статус-бара на белый
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
-    }
-    
-    // MARK: - QuestionFactoryDelegate
-    
-    func didReceiveNextQuestion(question: QuizQuestion?) {
-        presenter.didReceiveNextQuestion(question: question)
-    }
-    
-    func didFailToReceiveNextQuestion(with error: Error) {
-        hideLoadingIndicator()
-        showNetworkError { [weak self] in
-            guard let self = self else { return }
-            
-            self.showLoadingIndicator()
-            self.questionFactory?.requestNextQuestion()
-        }
-    }
-    
-    func didLoadDataFromServer() {
-        hideLoadingIndicator()
-        questionFactory?.requestNextQuestion()
-    }
-    
-    func didFailToLoadData(with error: Error) {
-        hideLoadingIndicator()
-        showNetworkError { [weak self] in
-            guard let self = self else { return }
-            
-            self.showLoadingIndicator()
-            self.questionFactory?.loadData()
-        }
-    }
-    
-    func didLoadEmptyData(errorMessage: String) {
-        hideLoadingIndicator()
-        showEmptyDataError(errorMessage: errorMessage) { [weak self] in
-            guard let self = self else { return }
-            
-            self.showLoadingIndicator()
-            self.questionFactory?.loadData()
-        }
     }
     
     // MARK: - IBAction
@@ -104,37 +48,27 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     // MARK: - Private Methods
     
-     func show(quiz step: QuizStepViewModel) {
-        imageView.image = step.image
-        textLabel.text = step.question
-        counterLabel.text = step.questionNumber
-    }
-    
-     func showAnswerResult(isCorrect: Bool) {
-        if isCorrect {
-            correctAnswers += 1
-            imageView.layer.borderColor = UIColor.ypGreen.cgColor
-        } else {
-            imageView.layer.borderColor = UIColor.ypRed.cgColor
-        }
+    func showAnswerResult(isCorrect: Bool) {
+        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
         changeStateButtons(isEnabled: false)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self = self else { return }
-            self.presenter.correctAnswers = self.correctAnswers
-                        self.presenter.questionFactory = self.questionFactory
-                        self.presenter.showNextQuestionOrResults()
+            self.presenter.showNextQuestionOrResults()
         }
     }
+    
+    func show(quiz step: QuizStepViewModel) {
+       imageView.image = step.image
+       textLabel.text = step.question
+       counterLabel.text = step.questionNumber
+   }
     
      func show(quiz result: QuizResultsViewModel) {
         let completion = { [weak self] in
             guard let self = self else { return }
-            
-            self.presenter.resetQuestionIndex()
-            self.correctAnswers = 0
+            self.presenter.restartGame()
             self.showLoadingIndicator()
-            questionFactory?.requestNextQuestion()
         }
         
         let alertResult = AlertModel(
@@ -146,6 +80,27 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         
         alertPresenter = AlertPresenter(delegate: self)
         alertPresenter?.showAlert(model: alertResult)
+    }
+    
+     func showNetworkError(completion: @escaping () -> Void) {
+        let alertError = AlertModel(title:"Что-то пошло не так(",
+                                    message: "Невозможно загрузить данные",
+                                    buttonText:"Попробовать ещё раз", 
+                                    accessibilityIdentifier: "Network Error",
+                                    completion: completion)
+        alertPresenter = AlertPresenter(delegate: self)
+        alertPresenter?.showAlert(model: alertError)
+    }
+    
+     func showEmptyDataError(errorMessage: String, completion: @escaping () -> Void) {
+        let alertError = AlertModel(title:"Что-то пошло не так(",
+                                    message: errorMessage,
+                                    buttonText:"Попробовать ещё раз", 
+                                    accessibilityIdentifier: "Empty Data",
+                                    completion: completion)
+        
+        alertPresenter = AlertPresenter(delegate: self)
+        alertPresenter?.showAlert(model: alertError)
     }
     
     // функция которая делает рамку прозрачной
@@ -167,40 +122,5 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     func hideLoadingIndicator() {
         activityIndicator.stopAnimating()
         imageView.alpha = 1
-    }
-    
-    private func showNetworkError(completion: @escaping () -> Void) {
-        let completion = { [weak self] in
-            guard let self = self else { return }
-            
-            self.showLoadingIndicator()
-            self.questionFactory?.loadData()
-        }
-        
-        let alertError = AlertModel(title:"Что-то пошло не так(",
-                                    message: "Невозможно загрузить данные",
-                                    buttonText:"Попробовать ещё раз", 
-                                    accessibilityIdentifier: "Network Error",
-                                    completion: completion)
-        alertPresenter = AlertPresenter(delegate: self)
-        alertPresenter?.showAlert(model: alertError)
-    }
-    
-    private func showEmptyDataError(errorMessage: String, completion: @escaping () -> Void) {
-        let completion = { [weak self] in
-            guard let self = self else { return }
-            
-            self.showLoadingIndicator()
-            self.questionFactory?.loadData()
-        }
-        
-        let alertError = AlertModel(title:"Что-то пошло не так(",
-                                    message: errorMessage,
-                                    buttonText:"Попробовать ещё раз", 
-                                    accessibilityIdentifier: "Empty Data",
-                                    completion: completion)
-        
-        alertPresenter = AlertPresenter(delegate: self)
-        alertPresenter?.showAlert(model: alertError)
     }
 }
