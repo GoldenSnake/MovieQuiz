@@ -11,12 +11,14 @@ final class MovieQuizPresenter {
     
     let questionsAmount: Int = 10
     var currentQuestion: QuizQuestion?
-    
+    var correctAnswers = 0
     weak var viewController: MovieQuizViewController?
+    var questionFactory: QuestionFactoryProtocol?
     
     // MARK: - Private Properties
     
     private var currentQuestionIndex: Int = 0
+    private let statisticService: StatisticService = StatisticServiceImplementation()
     
     // MARK: - Public Methods
     
@@ -49,6 +51,33 @@ final class MovieQuizPresenter {
         DispatchQueue.main.async { [weak self] in
             self?.viewController?.hideLoadingIndicator()
             self?.viewController?.show(quiz: viewModel)
+        }
+    }
+    
+     func showNextQuestionOrResults() {
+        if isLastQuestion() {
+            statisticService.store(correct: correctAnswers, total: questionsAmount)
+            
+            let message = """
+            Ваш результат: \(correctAnswers)/\(questionsAmount)
+            Количество сыгранных квизов: \(statisticService.gamesCount)
+            Рекорд: \(statisticService.bestGame.correct)/\(statisticService.bestGame.total) (\(statisticService.bestGame.date.dateTimeString))
+            Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%
+            """
+            let viewModelResults = QuizResultsViewModel(title: "Этот раунд окончен!",
+                                                        message: message,
+                                                        buttonText: "Сыграть еще раз")
+            viewController?.show(quiz: viewModelResults)
+            
+            viewController?.borderColorClear()
+            viewController?.changeStateButtons(isEnabled: true)
+        } else {
+            switchToNextQuestion()
+            viewController?.borderColorClear()
+            viewController?.changeStateButtons(isEnabled: true)
+            viewController?.showLoadingIndicator()
+            
+            questionFactory?.requestNextQuestion()
         }
     }
     

@@ -121,38 +121,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self = self else { return }
-            self.showNextQuestionOrResults()
+            self.presenter.correctAnswers = self.correctAnswers
+                        self.presenter.questionFactory = self.questionFactory
+                        self.presenter.showNextQuestionOrResults()
         }
     }
     
-    
-    private func showNextQuestionOrResults() {
-        if presenter.isLastQuestion() {
-            statisticService.store(correct: correctAnswers, total: presenter.questionsAmount)
-            let message = """
-            Ваш результат: \(correctAnswers)/\(presenter.questionsAmount)
-            Количество сыгранных квизов: \(statisticService.gamesCount)
-            Рекорд: \(statisticService.bestGame.correct)/\(statisticService.bestGame.total) (\(statisticService.bestGame.date.dateTimeString))
-            Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%
-            """
-            let viewModelResults = QuizResultsViewModel(title: "Этот раунд окончен!",
-                                                        message: message,
-                                                        buttonText: "Сыграть еще раз")
-            show(quiz: viewModelResults)
-            
-            borderColorClear()
-            changeStateButtons(isEnabled: true)
-        } else {
-            presenter.switchToNextQuestion()
-            borderColorClear()
-            changeStateButtons(isEnabled: true)
-            showLoadingIndicator()
-            
-            self.questionFactory?.requestNextQuestion()
-        }
-    }
-    
-    private func show(quiz result: QuizResultsViewModel) {
+     func show(quiz result: QuizResultsViewModel) {
         let completion = { [weak self] in
             guard let self = self else { return }
             
@@ -174,16 +149,16 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     // функция которая делает рамку прозрачной
-    private func borderColorClear() {
+     func borderColorClear() {
         imageView.layer.borderColor = UIColor.clear.cgColor
     }
     
-    private func changeStateButtons(isEnabled: Bool) {
+    func changeStateButtons(isEnabled: Bool) {
         yesButton.isEnabled = isEnabled
         noButton.isEnabled = isEnabled
     }
     
-    private func showLoadingIndicator() {
+     func showLoadingIndicator() {
         activityIndicator.startAnimating() // включаем анимацию
         textLabel.text = ""
         imageView.alpha = 0.6
