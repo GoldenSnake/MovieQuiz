@@ -9,7 +9,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate  {
     
     // MARK: - Private Properties
     
-    private weak var viewController: MovieQuizViewController?
+    private weak var viewController: MovieQuizViewControllerProtocol?
     private var questionFactory: QuestionFactoryProtocol?
     private let statisticService: StatisticService = StatisticServiceImplementation()
     
@@ -18,7 +18,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate  {
     private let questionsAmount: Int = 10
     private var correctAnswers = 0
     
-    init(viewController: MovieQuizViewController) {
+    init(viewController: MovieQuizViewControllerProtocol) {
         self.viewController = viewController
         
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
@@ -96,8 +96,8 @@ final class MovieQuizPresenter: QuestionFactoryDelegate  {
         viewController?.showAnswerResult(isCorrect: isCorrect)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-                    self?.proceedToNextQuestionOrResults()
-                }
+            self?.proceedToNextQuestionOrResults()
+        }
     }
     
     private func proceedToNextQuestionOrResults() {
@@ -145,7 +145,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate  {
         currentQuestionIndex += 1
     }
     
-    private func convert(model: QuizQuestion) -> QuizStepViewModel {
+    func convert(model: QuizQuestion) -> QuizStepViewModel {
         let questionStep = QuizStepViewModel(
             image: UIImage(data: model.image) ?? UIImage(),
             question: model.text,
