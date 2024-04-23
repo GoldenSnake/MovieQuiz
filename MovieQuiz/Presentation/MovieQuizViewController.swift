@@ -20,10 +20,7 @@ final class MovieQuizViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        imageView.layer.masksToBounds = true
-        imageView.layer.borderWidth = 8
-        borderColorClear()
+     
         imageView.backgroundColor = .clear
         activityIndicator.hidesWhenStopped = true
         showLoadingIndicator()
@@ -46,16 +43,13 @@ final class MovieQuizViewController: UIViewController {
         presenter.yesButtonClicked()
     }
     
-    // MARK: - Private Methods
+    // MARK: - Public Methods
     
     func showAnswerResult(isCorrect: Bool) {
+        imageView.layer.masksToBounds = true
+        imageView.layer.borderWidth = 8
         imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
         changeStateButtons(isEnabled: false)
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            guard let self = self else { return }
-            self.presenter.showNextQuestionOrResults()
-        }
     }
     
     func show(quiz step: QuizStepViewModel) {
@@ -64,13 +58,7 @@ final class MovieQuizViewController: UIViewController {
        counterLabel.text = step.questionNumber
    }
     
-     func show(quiz result: QuizResultsViewModel) {
-        let completion = { [weak self] in
-            guard let self = self else { return }
-            self.presenter.restartGame()
-            self.showLoadingIndicator()
-        }
-        
+    func show(quiz result: QuizResultsViewModel, completion: @escaping () -> Void) {
         let alertResult = AlertModel(
             title: result.title,
             message: result.message,
