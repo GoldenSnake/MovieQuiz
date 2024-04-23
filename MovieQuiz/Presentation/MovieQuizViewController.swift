@@ -13,7 +13,7 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     
     // MARK: - Private Properties
     
-    private var presenter: MovieQuizPresenter!
+    private var presenter: MovieQuizPresenter?
     private var alertPresenter: AlertPresenterProtocol?
     
     // MARK: - Lifecycle
@@ -36,11 +36,11 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     // MARK: - IBAction
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
-        presenter.noButtonClicked()
+        presenter?.noButtonClicked()
     }
     
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        presenter.yesButtonClicked()
+        presenter?.yesButtonClicked()
     }
     
     // MARK: - Public Methods

@@ -5,7 +5,7 @@
 
 import XCTest
 
-class MovieQuizUITests: XCTestCase {
+final class MovieQuizUITests: XCTestCase {
     // swiftlint:disable:next implicitly_unwrapped_optional
     var app: XCUIApplication!
     
@@ -68,7 +68,6 @@ class MovieQuizUITests: XCTestCase {
             app.buttons["Yes"].tap()
             sleep(3)
         }
-        sleep(3)
         let alert = app.alerts["Results"]
         sleep(3)
         XCTAssertTrue(alert.exists)
